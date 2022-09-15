@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'name', defaultValue: 'abhay', description: 'please provide you name')
+
+       }
+    tools {
+        maven  'maven'
+    }
+    stages {
+        stage ('git checkout'){
+            steps {
+                cleanWs()
+                checkout scm
+                
+            }
+        }
+        stage ('maven build'){
+            steps {
+              script {
+                sh ('mvn ${name}')
+               }
+            }
+        }
+        
+       stage('Parallel Stage') {
+            
+            parallel {
+                stage('Branch A') {
+                 
+                    steps {
+                        echo "On Branch A"
+                    }
+                }
+                stage('Branch B') {
+                  
+                    steps {
+                        echo "On Branch B"
+                    }
+               }
+       }
+     }
+    }
+  post {
+       
+        success {
+            echo 'build got success'
+        }
+        failure {
+            echo "build got faild so pelase check the cosole output for debug the logs"
+        }
+      }
+}
